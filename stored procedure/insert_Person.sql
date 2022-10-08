@@ -1,3 +1,4 @@
+--insert a person into database
 --EXECUTE [insert_Person] <Username>,<Name>,<Password>
 CREATE PROCEDURE [insert_Person]
 (@Username_1 varchar(50),
@@ -18,7 +19,7 @@ begin
 	RETURN 2; 
 end;
 
-
+--insert
 INSERT INTO [person] 
 ([Username], [name], [Password])
 VALUES ( @Username_1, @Name_2, @Password_3)

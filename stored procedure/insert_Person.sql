@@ -1,5 +1,7 @@
 --insert a person into database
 --EXECUTE [insert_Person] <Username>,<Name>,<Password>
+USE [10_MealPlan]
+GO
 CREATE PROCEDURE [insert_Person]
 (@Username_1 varchar(50),
 @Name_2 varchar(50)=null,

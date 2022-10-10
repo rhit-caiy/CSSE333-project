@@ -1,6 +1,8 @@
 --insert isIngredientOf into database
 --it should be executed immediately after create food and can not execute any more
 --EXECUTE [insert_IsIngredientOf] <food name> <ingredient name> <quantity>
+USE [10_MealPlan]
+GO
 CREATE PROCEDURE [insert_IsIngredientOf]
 (@foodname varchar(50),
 @ingredientname varchar(50),

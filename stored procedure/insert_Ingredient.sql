@@ -1,5 +1,7 @@
 --insert an ingredient into database
 --EXECUTE [insert_Ingredient] <ingredient name>
+USE [10_MealPlan]
+GO
 CREATE PROCEDURE [insert_Ingredient]
 (@name varchar(50))
 AS

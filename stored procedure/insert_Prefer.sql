@@ -1,5 +1,7 @@
 --insert prefer into database
 --EXECUTE [insert_prefer] <Username> <ingredient name>
+USE [10_MealPlan]
+GO
 CREATE PROCEDURE [insert_Prefer]
 (@Username varchar(50),
 @ingredientname varchar(50))

@@ -1,5 +1,7 @@
 --insert a food into database
 --EXECUTE [insert_Food] <food name>
+USE [10_MealPlan]
+GO
 CREATE PROCEDURE [insert_Food]
 (@name varchar(50),
 @instruction varchar(max) = null)

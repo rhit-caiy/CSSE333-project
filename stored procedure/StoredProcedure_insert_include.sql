@@ -2,20 +2,20 @@
 --EXECUTE [update_password] <FoodName> <MealPlanID> <amount>
 USE [10_MealPlan]
 GO
-CREATE PROCEDURE [add_food_to_mealplan]
+Create PROCEDURE [add_food_to_mealplan]
 (@FoodName varchar(50),
 @MealPlanID int,
 @amount int)
 AS
 --if any field is null
-If (@FoodName is null or @MealPlanID is null or @amount is null)
+If (@FoodName is null or @MealPlanID is null)
 Begin
-	RAISERROR('Food name or meal plan ID or amount cannot be null', 14, 1);
+	RAISERROR('Food name or meal plan ID cannot be null', 14, 1);
 	RETURN 1; 
 End;
 
 --Return an error code and print error message if the field doesn't exist
-IF (NOT EXISTS (SELECT * FROM [food] WHERE name = @FoodName) or not EXISTS (SELECT * FROM [MealPlan] WHERE [ID] = @MealPlanID))
+IF (NOT EXISTS (SELECT * FROM [food] WHERE name = @FoodName) or NOT EXISTS (SELECT * FROM [MealPlan] WHERE [ID] = @MealPlanID))
 BEGIN
 	RAISERROR('Person username or meal plan ID does not exist in the table.', 14, 2);
 	RETURN 2;

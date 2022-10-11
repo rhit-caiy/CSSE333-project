@@ -2,22 +2,22 @@
 --EXECUTE [insert_mealplan] <ID>, <date>, <type>
 USE [10_MealPlan]
 GO
-Alter PROCEDURE [insert_mealplan]
+Create PROCEDURE [insert_mealplan]
 (@ID int,
 @date datetime,
 @type varchar(20))
 AS
---if fields are null
-if (@ID is null or @date is null or @type is null)
+--if ID is null
+if (@ID is null)
 begin
-	RAISERROR('ID or date or type cannot be null', 14, 1);
+	RAISERROR('ID cannot be null', 14, 1);
 	RETURN 1; 
 end;
 
---if ID already exist
+--if ID already exists
 if (EXISTS (SELECT * FROM [MealPlan] WHERE [ID] = @ID))
 begin
-	RAISERROR('already exist ID', 14, 2);
+	RAISERROR('already exists ID', 14, 2);
 	RETURN 2; 
 end;
 

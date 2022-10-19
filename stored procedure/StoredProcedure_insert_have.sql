@@ -2,14 +2,15 @@
 --EXECUTE [add_mealpan_to_person] <Username> <MealPlanID>
 USE [10_MealPlan]
 GO
-CREATE PROCEDURE [add_mealpan_to_person]
+Create PROCEDURE [add_mealpan_to_person]
 (@Username varchar(50),
-@MealPlanID int)
+@MealPlanID int,
+@Quantity int)
 AS
 --if either username or meal plan ID is null
-If (@Username is null or @MealPlanID is null)
+If (@Username is null or @MealPlanID is null or @Quantity is null)
 Begin
-	RAISERROR('User name or meal plan ID cannot be null', 14, 1);
+	RAISERROR('User name, meal plan ID or quantity cannot be null', 14, 1);
 	RETURN 1; 
 End;
 
@@ -20,8 +21,14 @@ BEGIN
 	RETURN 2;
 END;
 
+IF (@Quantity = 0)
+Begin
+	Raiserror('Quantity of meal plan cannot be 0.', 14, 3);
+	Return 3;
+End
+
 --add meal plan to person
 INSERT INTO [have] 
-([Username], [MealPlanID])
-VALUES (@Username, @MealPlanID)
+([Username], [MealPlanID], [Quantity])
+VALUES (@Username, @MealPlanID, @Quantity)
 GO

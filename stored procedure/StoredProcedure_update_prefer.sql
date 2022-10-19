@@ -2,7 +2,7 @@
 --EXECUTE [update_prefer] <Username> <IngredientName>
 USE [10_MealPlan]
 GO
-CREATE PROCEDURE [update_prefer]
+Create PROCEDURE [update_prefer]
 (@Username varchar(50),
 @newIngredientName varchar(50))
 AS
@@ -17,6 +17,13 @@ End;
 IF (NOT EXISTS (SELECT * FROM person WHERE Username = @Username))
 BEGIN
 	RAISERROR('Person username does not exist in the table.', 14, 2);
+	RETURN 2;
+END;
+
+--Return an error code and print error message if the ingredient doesn't exist
+IF (NOT EXISTS (SELECT * From ingredient WHERE [name] = @newIngredientName))
+BEGIN
+	RAISERROR('This ingredient does not exist in the table.', 14, 3);
 	RETURN 2;
 END;
 

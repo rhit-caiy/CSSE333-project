@@ -8,7 +8,7 @@ Create PROCEDURE [add_food_to_mealplan]
 @amount int)
 AS
 --if any field is null
-If (@FoodName is null or @MealPlanID is null)
+If (@FoodName is null or @MealPlanID is null or @amount is null)
 Begin
 	RAISERROR('Food name or meal plan ID cannot be null', 14, 1);
 	RETURN 1; 
@@ -20,6 +20,12 @@ BEGIN
 	RAISERROR('Person username or meal plan ID does not exist in the table.', 14, 2);
 	RETURN 2;
 END;
+
+IF(@amount = 0)
+Begin
+	RAISERROR('Amount of food cannot be 0', 14, 3);
+	RETURN 3; 
+End;
 
 --add food to meal plan
 INSERT INTO [include] 

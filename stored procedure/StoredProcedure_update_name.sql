@@ -4,7 +4,8 @@ USE [10_MealPlan]
 GO
 CREATE PROCEDURE [update_name]
 (@Username varchar(50),
-@newName varchar(50))
+@newName varchar(50),
+@password varchar(MAX))
 AS
 --if either name is null
 If (@Username is null or @newName is null)
@@ -14,9 +15,9 @@ Begin
 End;
 
 --Return an error code and print error message if the person doesn't exist
-IF (NOT EXISTS (SELECT * FROM [person] WHERE Username = @Username))
+IF (NOT EXISTS (SELECT * FROM [person] WHERE Username = @Username and password = @password))
 BEGIN
-	RAISERROR('Person username does not exist in the table.', 14, 2);
+	RAISERROR('Person username does not exist in the table or password incorrect.', 14, 2);
 	RETURN 2;
 END;
 

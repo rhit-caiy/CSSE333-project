@@ -5,7 +5,7 @@ GO
 CREATE PROCEDURE [insert_Person]
 (@Username_1 varchar(50),
 @Name_2 varchar(50)=null,
-@Password_3 varchar(50))
+@Password_3 varchar(MAX))
 AS
 --if username or password of key value is null
 if (@Username_1 is null or @Password_3 is null)

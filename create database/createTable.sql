@@ -23,7 +23,7 @@ GO
 create table person(
 	Username varchar(50) primary key not null,
 	[Name] varchar(50),
-	[Password] varchar(50) not null
+	[Password] varchar(MAX) not null
 );
 
 create table MealPlan(

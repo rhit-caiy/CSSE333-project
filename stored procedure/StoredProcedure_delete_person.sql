@@ -5,7 +5,7 @@ GO
 Create PROCEDURE [delete_person]
 (@Username varchar(50),
 @name varchar(50),
-@password varchar(50))
+@password varchar(MAX))
 AS
 --if username is null
 if (@Username is null or @password is null)
@@ -15,7 +15,7 @@ begin
 end;
 
 --if ID or password doesn't exist
-if (NOT EXISTS (Select [Username] From [Person] Where [Username] = @Username) OR NOT EXISTS (Select [password] From [person] Where [password] = @password))
+if (NOT EXISTS (Select [Username] From [Person] Where [Username] = @Username and Password = @password))
 begin
 	RAISERROR('does not exist Username or password', 14, 2);
 	RETURN 2; 

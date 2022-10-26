@@ -14,10 +14,9 @@ user="SodaBaseUsercaiy"
 password="Password123"
 database="10_MealPlan"
 
-islogin=False
+# islogin=False
 username=""
 name=""
-savepassword=False
 userpassword=""
 
 spname=["insert_Person","delete_person","insert_Food","insert_Ingredient","update_name","insert_IsIngredientOf","insert_mealplan","add_mealpan_to_person","delete_mealplan"]
@@ -32,15 +31,15 @@ page=-1
 #current plan on page
 #0: start page, require login or sign up
 #1: main page after log in, able to link to many pages below as well as log out
-#2: personal information
-#3: display all food, able to add, connect food to ingredient
+#2: personal information, merge to page 1
+#3: display all food, able to add and then connect food to ingredient
 #4: display all ingredient, able to add
-#5: show all personal meal plan, add or edit meal plan
+#5: show all personal meal plan, able to add or edit meal plan
 #6: 
 #-1: display most table version
 
 #show content of one table on UI, can only be used for test purpose
-def display(databasetablename,attribute,column):
+def _display(databasetablename,attribute,column):
     r=0#row number used for text coordinate
     canvas.create_text(120*column+40,80,text=databasetablename)
     canvas.create_text(120*column+40,100,text=attribute)
@@ -54,7 +53,11 @@ def display(databasetablename,attribute,column):
             canvas.update()
 
 #draw grid for database table
-def drawgrid():
+def drawgrid(row,col):
+    pass
+
+#draw table
+def drawtable(table):
     pass
 
 #draw the contents
@@ -62,17 +65,17 @@ def draw():
     #use display to display table
     #last argument is column and used for text coordinate
     if page==-1:
-        display("MealPlan","ID",0)
-        display("MealPlan",'date',1)
-        display("MealPlan",'type',2)
-        display("person","Username",3)
-        display("person","name",4)
-        display("food","name",5)
-        display("ingredient","name",6)
-        display("isIngredientOf","FoodName",7)
-        display("isIngredientOf","IngredientName",8)
-        display("have","Username",9)
-        display("have","MealPlanID",10)
+        _display("MealPlan","ID",0)
+        _display("MealPlan",'date',1)
+        _display("MealPlan",'type',2)
+        _display("person","Username",3)
+        _display("person","name",4)
+        _display("food","name",5)
+        _display("ingredient","name",6)
+        _display("isIngredientOf","FoodName",7)
+        _display("isIngredientOf","IngredientName",8)
+        _display("have","Username",9)
+        _display("have","MealPlanID",10)
         
         #draw the "buttom" on canvas
         canvas.create_rectangle(110,500,190,550)
@@ -111,7 +114,55 @@ def draw():
         canvas.create_rectangle(650,500,750,550,fill="#AAAAAA")
         canvas.create_text(700,525,text="sign up")
     elif page==1:
-        canvas.create_text(700,300,text="Log in now",font=("Purisa",30))
+        canvas.create_text(700,100,text="Welcome, "+name,font=("Purisa",30))
+        
+        centerx=200
+        centery=300
+        width=100
+        height=50
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="edit username")
+        
+        centerx=200
+        centery=400
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="edit password")
+        
+        centerx=700
+        centery=300
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="all food")
+        
+        centerx=700
+        centery=400
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="all ingredient")
+        
+        centerx=700
+        centery=500
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="personal meal plan")
+        
+        centerx=700
+        centery=600
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
+        canvas.create_text(centerx,centery,text="log out")
+        
+    elif page==3:#food
+        canvas.create_text(100,100,text="food",font=("Purisa",30))
+        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
+        canvas.create_text(1225,625,text="menu")
+        pass
+    elif page==4:#ingredient
+        canvas.create_text(100,100,text="ingredient",font=("Purisa",30))
+        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
+        canvas.create_text(1225,625,text="menu")
+        pass
+    elif page==5:#meal plan
+        canvas.create_text(100,100,text="meal plan",font=("Purisa",30))
+        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
+        canvas.create_text(1225,625,text="menu")
+        pass
         
 
 #detect click event on canvas, x and y are integer from up left to bottom right on canvas
@@ -125,24 +176,54 @@ def click(coordinate):
         if 650<x<750 and 400<y<450:
             #log in
             username=simpledialog.askstring(title="username", prompt="input your username", initialvalue="")
-            password=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
-            password=hashlib.sha256(password.encode('utf-8')).hexdigest()
-            r=callsp("exist_Person",(username,password))
+            password1=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
+            password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
+            r=callsp("exist_Person",(username,password1))
             if r and r!=1:
-                print("successfully log in",r)
+                print("successfully log in with",r)
                 page=1
                 username=username
-                userpassword=password
+                userpassword=password1
+                name=r[0]["name"]
             else:
                 messagebox.showerror('error',"not exist user or incorrect password")
-        if 650<x<750 and 500<y<550:
+        elif 650<x<750 and 500<y<550:
             username=simpledialog.askstring(title="username", prompt="input your username", initialvalue="")
-            user_name=simpledialog.askstring(title="password", prompt="input your name", initialvalue="")
-            password=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
-            password=hashlib.sha256(password.encode('utf-8')).hexdigest()
-            if callsp("insert_Person",(username,user_name,password))==1:
+            user_name=simpledialog.askstring(title="name", prompt="input your name", initialvalue="")
+            password1=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
+            password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
+            if callsp("insert_Person",(username,user_name,password1))==1:
                 messagebox.showinfo("successfully sign up","Please log in use account")
-    if page==-1:
+    elif page==1:
+        if 150<x<250 and 275<y<325:
+            newname=simpledialog.askstring(title="password", prompt="input your new name", initialvalue=name)
+            if callsp("update_name",(username,newname,userpassword))==1:
+                name=newname
+        elif 150<x<250 and 375<y<425:
+            oldpassword=simpledialog.askstring(title="password", prompt="input your old password", initialvalue="")
+            oldpassword=hashlib.sha256(oldpassword.encode('utf-8')).hexdigest()
+            if oldpassword!=userpassword:
+                messagebox.showerror('error',"password incorrect")
+            else:
+                newpassword=simpledialog.askstring(title="password", prompt="input new password", initialvalue="")
+                newpassword=hashlib.sha256(newpassword.encode('utf-8')).hexdigest()
+                if callsp("update_password",(username,oldpassword,newpassword))==1:
+                    messagebox.showinfo("success","Password has changed")
+        elif 650<x<750:
+            if (y-25)//50==5:
+                page=3
+            elif (y-25)//50==7:
+                page=4
+            elif (y-25)//50==9:
+                page=5
+            elif (y-25)//50==11:
+                if messagebox.askyesno("log out","Sure to log out?"):
+                    page=0
+                    username=""
+                    name=""
+                    userpassword=""
+                    
+    elif page==-1:#only used for test
         if 100<x<200 and 500<y<550:
             print("insert person")
             personUsername=input("person Username:")
@@ -175,7 +256,7 @@ def click(coordinate):
             newName=input("new name:")
             personPassword=input("password:")
             personPassword=hashlib.sha256(personPassword.encode('utf-8')).hexdigest()
-            callsp("update_name",(personUsername,newName,personPassword))#add password
+            callsp("update_name",(personUsername,newName,personPassword))
             
         if 600<x<700 and 500<y<550:
             print("add ingredient to food")
@@ -238,11 +319,13 @@ def callsp(spname,args):
                 conn.commit()
                 print("finish stored procedure")
                 # cnt=cursor.fetchall()
-                print(cursor)
+                print(r)
                 
                 if r:
+                    #return query
                     return r
                 else:
+                    #successfully run without error but no return
                     return 1
     except pymssql._pymssql.DatabaseError as e:
         print("DatabaseError on stored procedure \"",spname,"\" with args",args)
@@ -258,6 +341,7 @@ def callsp(spname,args):
     except:
         print("Unknown error on stored procedure \"",spname,"\" with args",args)
         messagebox.showerror('error',"error")
+    #run with error
     return False
         
 #TODO: add more pages and their associated stored procedure

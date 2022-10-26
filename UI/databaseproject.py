@@ -116,7 +116,7 @@ def draw():
 
 #detect click event on canvas, x and y are integer from up left to bottom right on canvas
 def click(coordinate):
-    global page
+    global page,username,name,userpassword
     x=coordinate.x
     y=coordinate.y
     #detect coordinate on canvas and choose event
@@ -128,9 +128,11 @@ def click(coordinate):
             password=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
             password=hashlib.sha256(password.encode('utf-8')).hexdigest()
             r=callsp("exist_Person",(username,password))
-            if r:
-                print("successfully log in")
+            if r and r!=1:
+                print("successfully log in",r)
                 page=1
+                username=username
+                userpassword=password
             else:
                 messagebox.showerror('error',"not exist user or incorrect password")
         if 650<x<750 and 500<y<550:
@@ -138,7 +140,7 @@ def click(coordinate):
             user_name=simpledialog.askstring(title="password", prompt="input your name", initialvalue="")
             password=simpledialog.askstring(title="password", prompt="input your password", initialvalue="")
             password=hashlib.sha256(password.encode('utf-8')).hexdigest()
-            if callsp("insert_Person",(username,user_name,password)):
+            if callsp("insert_Person",(username,user_name,password))==1:
                 messagebox.showinfo("successfully sign up","Please log in use account")
     if page==-1:
         if 100<x<200 and 500<y<550:
@@ -241,7 +243,7 @@ def callsp(spname,args):
                 if r:
                     return r
                 else:
-                    return True
+                    return 1
     except pymssql._pymssql.DatabaseError as e:
         print("DatabaseError on stored procedure \"",spname,"\" with args",args)
         print(e)

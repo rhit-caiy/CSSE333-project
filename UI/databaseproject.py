@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-#pip install pymssql in console
 import pymssql
-from tkinter import Canvas,Tk,messagebox,simpledialog
+from tkinter import Canvas,Tk,messagebox,simpledialog,ttk
+import tkinter as tk
 import hashlib
 
 window=Tk()
-canvas=Canvas(window,bg="#EEEEEE",width=1400,height=660)#canvas size
+canvas=Canvas(window,bg="#EEEEEE",width=1500,height=750)#canvas size
 window.title("meal plan")
 
 #server, user, password, database
@@ -14,7 +14,7 @@ user="SodaBaseUsercaiy"
 password="Password123"
 database="10_MealPlan"
 
-# islogin=False
+#user information
 username=""
 name=""
 userpassword=""
@@ -54,12 +54,37 @@ def _display(databasetablename,attribute,column):
 
 #draw grid for database table
 def drawgrid(row,col):
-    pass
+    for i in range(int(startx-xwidth/2),int(startx-xwidth/2)+xwidth*row,xwidth):
+        canvas.create_line(i,starty-yheight/2,i,starty-yheight/2+col*yheight)
+    for i in range(int(starty-yheight/2),int(starty-yheight/2)+yheight*col,yheight):
+        canvas.create_line(startx-xwidth/2,i,startx-xwidth/2+row*xwidth,i)
+
+startx=300
+starty=100
+xwidth=300
+yheight=30
 
 #draw table
 def drawtable(table):
-    pass
-
+    # rownum=len(table)
+    attri=[]
+    for row in table:
+        for key in row.keys():
+            if key not in attri:
+                attri.append(key)
+    x=startx
+    y=starty
+    i=0
+    j=0
+    for a in attri:
+        j=1
+        canvas.create_text(x+xwidth*i,y,text=a)
+        for row in table:
+            canvas.create_text(x+xwidth*i,y+yheight*j,text=row[a])
+            j+=1
+        i+=1
+    drawgrid(i,j)
+        
 #draw the contents
 def draw():
     #use display to display table
@@ -106,13 +131,16 @@ def draw():
         canvas.create_rectangle(1000,500,1100,550)
         canvas.create_text(1050,525,text="go to main page")
     elif page==0:
-        canvas.create_text(700,300,text="Meal Plan",font=("Purisa",30))
+        canvas.create_text(700,200,text="Meal Plan",font=("Purisa",30))
         
         canvas.create_rectangle(650,400,750,450,fill="#AAAAAA")
         canvas.create_text(700,425,text="log in")
         
         canvas.create_rectangle(650,500,750,550,fill="#AAAAAA")
         canvas.create_text(700,525,text="sign up")
+        
+        canvas.create_rectangle(1000,600,1200,700,fill="#AAAAAA")
+        canvas.create_text(1100,650,text="developer mode\nwon't be available in final version")
     elif page==1:
         canvas.create_text(700,100,text="Welcome, "+name,font=("Purisa",30))
         
@@ -127,6 +155,11 @@ def draw():
         centery=400
         canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#AAAAAA")
         canvas.create_text(centerx,centery,text="edit password")
+        
+        centerx=200
+        centery=600
+        canvas.create_rectangle(centerx-width/2,centery-height/2,centerx+width/2,centery+height/2,fill="#FF4040")
+        canvas.create_text(centerx,centery,text="delete account")
         
         centerx=700
         centery=300
@@ -152,19 +185,80 @@ def draw():
         canvas.create_text(100,100,text="food",font=("Purisa",30))
         canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
         canvas.create_text(1225,625,text="menu")
-        pass
+        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
+        canvas.create_text(1050,625,text="add food")
+        table=callsp("get_Food",())
+        drawtable(table)
+        
     elif page==4:#ingredient
         canvas.create_text(100,100,text="ingredient",font=("Purisa",30))
         canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
         canvas.create_text(1225,625,text="menu")
-        pass
+        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
+        canvas.create_text(1050,625,text="add ingredient")
+        table=callsp("get_Ingredient",())
+        drawtable(table)
+        
     elif page==5:#meal plan
-        canvas.create_text(100,100,text="meal plan",font=("Purisa",30))
+        canvas.create_text(100,100,text="my meal plan",font=("Purisa",30))
         canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
         canvas.create_text(1225,625,text="menu")
-        pass
+        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
+        canvas.create_text(1050,625,text="add meal plan")
+        table=callsp("get_Mealplan",(username,))
+        drawtable(table)
         
+def addFoodToPlan(food, type, ingredient, createdDate):
+    plan.insert("",0, text = food, values = (type, ingredient, createdDate))
 
+def addFoodDialog():
+    # box = messagebox.askokcancel("Add Food to Meal Plan",)
+    add = tk.Toplevel(window)
+    add.title("Add a Food to Meal Plan")
+    add.geometry("400x100")
+    addLable = tk.Label(add, text = "choose the Food You would like to add")
+    addLable.grid(column = 0, row = 0)
+    str = tk.StringVar(add)
+    str.set("Food")
+    #todo: load current food available to choose in the database
+    #excute('select Name in Food')
+    choice = ["pizza", "cake"]
+    chooseList = tk.OptionMenu(add,str, *choice)
+    chooseList.grid(column = 1, row = 0)
+    #todo: add the choosen food to the database
+    #call stored Procedre(addFood) here
+    ttk.Button(add, text="confirm Addition").grid(column=0, row=1)
+    ttk.Button(add, text="Cancel").grid(column=1, row=1)
+    add.mainloop()
+
+def editFoodDialog():
+    edit = tk.Toplevel(window)
+    edit.title("Edit a Food to Meal Plan")
+    edit.geometry("400x150")
+    chooseEdit = tk.Label(edit, text="Choose the Food you would like to edit")
+    chooseEdit.grid(column = 0, row = 0)
+    editTo = tk.Label(edit, text="Choose the Food you would like it to be")
+    editTo.grid(column = 0, row = 1)
+    edit_str = tk.StringVar(edit)
+    edit_str.set("Food")
+    food_str = tk.StringVar(edit)
+    food_str.set("Food")
+    #todo: load current food in the user's meal plan
+    #execute('select FoodName from have where userName = @userName')
+    choice = ["pizza", "cake"]
+    chooseList = tk.OptionMenu(edit, edit_str, *choice)
+    chooseList.grid(column = 1, row = 0)
+    #todo: load available food in database
+    #execute('select name from Food')
+    food = ["pizza","cake"]
+    foodList = tk.OptionMenu(edit, food_str, *food)
+    foodList.grid(column = 1, row = 1)
+    #todo: add command to edit and delete, connect to stored procedure
+    ttk.Button(edit, text = "Update Edit").grid(column = 0 ,row = 2)
+    ttk.Button(edit, text = "Delete this Food").grid(column = 1 ,row = 2)
+    edit.mainloop()
+    
+    
 #detect click event on canvas, x and y are integer from up left to bottom right on canvas
 def click(coordinate):
     global page,username,name,userpassword
@@ -194,6 +288,8 @@ def click(coordinate):
             password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
             if callsp("insert_Person",(username,user_name,password1))==1:
                 messagebox.showinfo("successfully sign up","Please log in use account")
+        elif 1000<x<1200 and 600<y<700:
+            page=-1
     elif page==1:
         if 150<x<250 and 275<y<325:
             newname=simpledialog.askstring(title="password", prompt="input your new name", initialvalue=name)
@@ -209,6 +305,18 @@ def click(coordinate):
                 newpassword=hashlib.sha256(newpassword.encode('utf-8')).hexdigest()
                 if callsp("update_password",(username,oldpassword,newpassword))==1:
                     messagebox.showinfo("success","Password has changed")
+        elif 150<x<250 and 575<y<625:
+            password1=simpledialog.askstring(title="delete account", prompt="input your password to delete account", initialvalue="")
+            password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
+            if password1!=userpassword:
+                messagebox.showerror('error',"password incorrect")
+            elif messagebox.askyesno("delete","Sure to delete account?\nThe account can't be found back"):
+                if callsp("delete_person",(username,name,password1))==1:
+                    page=0
+                    username=""
+                    name=""
+                    userpassword=""
+                
         elif 650<x<750:
             if (y-25)//50==5:
                 page=3
@@ -222,6 +330,28 @@ def click(coordinate):
                     username=""
                     name=""
                     userpassword=""
+    elif page==3:
+        if 1200<x<1250 and 600<y<650:
+            page=1
+        elif 1000<x<1100 and 600<y<650:
+            print("add food")
+            foodName=simpledialog.askstring(title="create food", prompt="input name of food", initialvalue="")
+            foodInstruction=simpledialog.askstring(title="create food", prompt="input food instruction", initialvalue="")
+            callsp("insert_Food", (foodName,foodInstruction))
+            
+    elif page==4:
+        if 1200<x<1250 and 600<y<650:
+            page=1
+        elif 1000<x<1100 and 600<y<650:
+            print("add ingredient")
+            ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
+            callsp("insert_Ingredient", (ingredientName,))
+            
+    elif page==5:
+        if 1200<x<1250 and 600<y<650:
+            page=1
+        elif 1000<x<1100 and 600<y<650:
+            addFoodDialog()
                     
     elif page==-1:#only used for test
         if 100<x<200 and 500<y<550:
@@ -248,7 +378,7 @@ def click(coordinate):
         if 400<x<500 and 500<y<550:
             print("add ingredient")
             ingredientName=input("ingredient name:")
-            callsp("insert_Food",(ingredientName,))
+            callsp("insert_Ingredient",(ingredientName,))
             
         if 500<x<600 and 500<y<550:
             print("edit person name")
@@ -343,8 +473,7 @@ def callsp(spname,args):
         messagebox.showerror('error',"error")
     #run with error
     return False
-        
-#TODO: add more pages and their associated stored procedure
+
 canvas.bind("<Button-1>",click)
 
 draw()

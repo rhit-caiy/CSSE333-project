@@ -215,10 +215,10 @@ def draw():
         
     elif page==3:#food
         canvas.create_text(200,50,text="food",font=("Purisa",30))
-        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
-        canvas.create_text(1225,625,text="menu")
-        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
-        canvas.create_text(1050,625,text="add food")
+        canvas.create_rectangle(1200,650,1250,700,fill="#AAAAAA")
+        canvas.create_text(1225,675,text="menu")
+        canvas.create_rectangle(1000,650,1100,700,fill="#AAAAAA")
+        canvas.create_text(1050,675,text="add food")
         table=callsp("get_Food",())
         if type(table)==list:
             totalrow=len(table)
@@ -227,10 +227,10 @@ def draw():
         
     elif page==4:#ingredient
         canvas.create_text(200,50,text="ingredient",font=("Purisa",30))
-        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
-        canvas.create_text(1225,625,text="menu")
-        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
-        canvas.create_text(1050,625,text="add ingredient")
+        canvas.create_rectangle(1200,650,1250,700,fill="#AAAAAA")
+        canvas.create_text(1225,675,text="menu")
+        canvas.create_rectangle(1000,650,1100,700,fill="#AAAAAA")
+        canvas.create_text(1050,675,text="add ingredient")
         table=callsp("get_Ingredient",())
         if type(table)==list:
             totalrow=len(table)
@@ -238,10 +238,10 @@ def draw():
         
     elif page==5:#meal plan
         canvas.create_text(200,50,text="my meal plan",font=("Purisa",30))
-        canvas.create_rectangle(1200,600,1250,650,fill="#AAAAAA")
-        canvas.create_text(1225,625,text="menu")
-        canvas.create_rectangle(1000,600,1100,650,fill="#AAAAAA")
-        canvas.create_text(1050,625,text="add meal plan")
+        canvas.create_rectangle(1200,650,1250,700,fill="#AAAAAA")
+        canvas.create_text(1225,675,text="menu")
+        canvas.create_rectangle(1000,650,1100,700,fill="#AAAAAA")
+        canvas.create_text(1050,675,text="add meal plan")
         table=callsp("get_Mealplan",(username,))
         if type(table)==list:
             totalrow=len(table)
@@ -328,9 +328,9 @@ def click(coordinate):
                     name=""
                     userpassword=""
     elif page==3:
-        if 1200<x<1250 and 600<y<650:
+        if 1200<x<1250 and 650<y<700:
             page=1
-        elif 1000<x<1100 and 600<y<650:
+        elif 1000<x<1100 and 650<y<700:
             #print("add food")
             foodName=simpledialog.askstring(title="create food", prompt="input name of food", initialvalue="")
             foodInstruction=simpledialog.askstring(title="create food", prompt="input food instruction", initialvalue="")
@@ -340,29 +340,30 @@ def click(coordinate):
             
             
     elif page==4:
-        if 1200<x<1250 and 600<y<650:
+        if 1200<x<1250 and 650<y<700:
             page=1
-        elif 1000<x<1100 and 600<y<650:
+        elif 1000<x<1100 and 650<y<700:
             #print("add ingredient")
             ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
             callsp("insert_Ingredient", (ingredientName,))
             
     elif page==5:
         #print(x,y)
-        if 1200<x<1250 and 600<y<650:
+        if 1200<x<1250 and 650<y<700:
             page=1
-        elif 1000<x<1100 and 600<y<650:
+        elif 1000<x<1100 and 650<y<700:
             mealplanIDs=callsp("get_allMealPlan",())
             print(mealplanIDs)
             mealplanIDs=[i['ID'] for i in mealplanIDs]
+            print("meal plan IDs",mealplanIDs)
             newID=max(mealplanIDs)+1
             y=simpledialog.askstring(title="new mealplan", prompt="input year", initialvalue=time.strftime("%Y", time.localtime()))
             m=simpledialog.askstring(title="new mealplan", prompt="input month", initialvalue=time.strftime("%m", time.localtime()))
             d=simpledialog.askstring(title="new mealplan", prompt="input day", initialvalue=time.strftime("%d", time.localtime()))
-            date=y+"-"+m+"-"+d
-            
-            if callsp("insert_mealplan", (newID,date)):
-                callsp("add_mealpan_to_person", (username,newID,1))
+            if y and m and d:
+                date=y+"-"+m+"-"+d
+                if callsp("insert_mealplan", (newID,date)):
+                    callsp("add_mealpan_to_person", (username,newID,1))
                 
         if 1050<x<1150:
             #meal plan detail 
@@ -377,7 +378,7 @@ def click(coordinate):
                     except:
                         pass
         if 1200<x<1300:
-            #meal plan detail 
+            #delete
             for i in range(rownum):
                 if i+startrow>=totalrow:
                     break
@@ -528,12 +529,16 @@ def addfoodingredient(foodName):
         lb.insert("end",a)
     def confirm():
         for i in range(lb2.size()):
-            print(lb2.get(i))
+            #print(lb2.get(i))
             try:
                 callsp("insert_IsIngredientOf",(foodName,lb2.get(i),1))
             except:
                 pass
         window1.destroy()
+    def addI():
+        ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
+        if callsp("insert_Ingredient", (ingredientName,)):
+            lb2.insert("end",ingredientName)
         
     window1 = tk.Tk()
     window1.title("add ingredient of "+foodName)
@@ -556,52 +561,14 @@ def addfoodingredient(foodName):
     
     button=tk.Button(window1,text="confirm",command=confirm)
     button.grid(row=3)
+    button=tk.Button(window1,text="add ingredient",command=addI)
+    button.grid(row=4)
     
     window1.mainloop()
-    '''
-    def confirmingredient():
-        selectedIngredient=[]
-        print()
-        for i in range(len(ingredientList)):
-            print(checklist[i].get())
-            if checklist[i].get()==True:
-                selectedIngredient.append(ingredientList[i])
-        print("selectedIngredient",selectedIngredient)
-        # for i in selectedIngredient:
-        #     print("insert ingredient name",i)
-        #     try:
-        #         callsp("insert_IsIngredientOf",(foodName,i,1))
-        #     except:
-        #         pass
-        window1.destroy()
-        
-    ingredientList = callsp("get_Ingredient",())
-    ingredientList=[i["name"] for i in ingredientList]
-    #ingredientList=['apple', 'banana', 'egg', 'ice', 'meat', 'oil', 'powder', 'salt', 'strawberry', 'sugar', 'water']
-    
-    window1 = tk.Tk()
-    window1.title("add ingredient of "+foodName)
-    window1.geometry("400x600")
-    
-    ingredientnum=len(ingredientList)
-    print(ingredientnum,ingredientList)
-    checklist=[]
-    #cb=[]
-    tk.Label(window1,text="please make "+foodName+" from following ingredients").pack()
-    for i in ingredientList:
-        checklist.append(tk.BooleanVar())
-        c=tk.Checkbutton(window1,text=i,
-                       variable=checklist[-1])#,command=lambda:updatearray(i))
-        c.pack()#.grid(row=i,sticky=tk.W)
-        #cb.append(c)
-    btn = tk.Button(window1,text="confirm",width=10,command=confirmingredient)
-    btn.pack()#grid(row=i+1)
-    root.mainloop()
-'''
 
 
 def generateMealPlan(username,mealplanID):
-    print("generate meal plan for",username,mealplanID)
+    #print("generate meal plan for",username,mealplanID)
     def loadFoodToPlan(food, type, ingredient, createdDate):
         plan.insert("",0, text = food, values = (type, ingredient, createdDate))
 
@@ -615,8 +582,8 @@ def generateMealPlan(username,mealplanID):
                 if type(foodingredient)==list:
                     ingredients = [i["IngredientName"] for i in foodingredient]
                 else:
-                    ingredients=[]
-                loadFoodToPlan(food["FoodName"], food["type"], ingredients, food["date"])
+                    ingredients=["N/A"]
+                loadFoodToPlan(food["FoodName"], food["type"], ingredients, food["date"].strftime("%Y-%m-%d"))
 
         
     def addFoodDialog():
@@ -658,11 +625,11 @@ def generateMealPlan(username,mealplanID):
 
     def editFoodDialog():
         def editFood():
-            callsp("editFoodOnPlan",(username, inputFood.get(), inputChangeTo.get(),))
+            callsp("editFoodOnPlan",(mealplanID, inputFood.get(), inputChangeTo.get(),))
             updatePlan()
             edit.destroy()
         def deleteFood():
-            callsp("deleteFoodOnPlan",(username, inputFood.get(),))
+            callsp("deleteFoodOnPlan",(username,mealplanID, inputFood.get(),))
             updatePlan()
             edit.destroy()
         edit = tk.Toplevel(window)
@@ -694,56 +661,62 @@ def generateMealPlan(username,mealplanID):
 
 
     def createFoodDialog():
-        def notContain(list, item):
-            for i in list:
-                if i == item:
-                    return False
-            return True
+        foodName=simpledialog.askstring(title="create food", prompt="input name of food", initialvalue="")
+        foodInstruction=simpledialog.askstring(title="create food", prompt="input food instruction", initialvalue="")
+        if callsp("insert_Food", (foodName,foodInstruction)):
+            #add ingredient to food
+            addfoodingredient(foodName)
+        # def notContain(list, item):
+        #     for i in list:
+        #         if i == item:
+        #             return False
+        #     return True
 
-        def addIngredient(col, list):
-            if notContain(list, inputIngredient.get()):
-                addedIngredient = tk.Label(createFood, text = inputIngredient.get())
-                addedIngredient.grid(column = col[0], row = 2)
-                col[0] += 1
-                list.append(inputIngredient.get())
+        # def addIngredient(col, list):
+        #     if notContain(list, inputIngredient.get()):
+        #         addedIngredient = tk.Label(createFood, text = inputIngredient.get())
+        #         addedIngredient.grid(column = col[0], row = 2)
+        #         col[0] += 1
+        #         list.append(inputIngredient.get())
 
-        def createFood(food, ingredient, instruction):
-            messagebox.showinfo("fail","please add in menu")
-            # callsp("",(food, instruction))#create a food name with instruction
-            # callsp("",(food, ingredient)) ##add the information into include relation table
+        # def createFood(food, ingredient, instruction):
+        #     callsp("",(food, instruction))#create a food name with instruction
+        #     callsp("",(food, ingredient)) ##add the information into include relation table
 
-        createFood = tk.Toplevel(window)
-        createFood.title("create food")
-        createFood.geometry("400x200")
-        foodName = tk.Label(createFood, text="foodName")
-        foodName.grid(column = 0, row = 0)
-        inputFoodName = tk.Entry(createFood)
-        inputFoodName.grid(column = 1, row = 0)
-        availableIngredient = []
-        ingredientList = callsp("get_Ingredient",())
-        for item in ingredientList:
-            availableIngredient.append(item["name"])
-        inputIngredient = tk.StringVar()
-        inputIngredient.set("ingredient")
-        chooseIngredientList = tk.OptionMenu(createFood, inputIngredient, *availableIngredient)
-        col = [0]
-        chosenIngredient = []
-        chooseIngredientList.grid(column = 0, row = 1)
-        instructionLabel = tk.Label(createFood, text = "instruction")
-        instructionLabel.grid(column = 0, row = 3)
-        inputInstruction = tk.Entry(createFood)
-        inputInstruction.grid(column = 1, row = 3)
-        tk.Button(createFood, text = "add", command = lambda:addIngredient(col, chosenIngredient)).grid(column = 1, row = 1)
-        tk.Button(createFood, text = "create", command = lambda: createFood(inputFoodName,chosenIngredient, inputInstruction)).grid(column = 1, row = 4)
+        # createFood = tk.Toplevel(window)
+        # createFood.title("create food")
+        # createFood.geometry("400x200")
+        # foodName = tk.Label(createFood, text="foodName")
+        # foodName.grid(column = 0, row = 0)
+        # inputFoodName = tk.Entry(createFood)
+        # inputFoodName.grid(column = 1, row = 0)
+        # availableIngredient = []
+        # ingredientList = callsp("get_Ingredient",())
+        # for item in ingredientList:
+        #     availableIngredient.append(item["name"])
+        # inputIngredient = tk.StringVar()
+        # inputIngredient.set("ingredient")
+        # chooseIngredientList = tk.OptionMenu(createFood, inputIngredient, *availableIngredient)
+        # col = [0]
+        # chosenIngredient = []
+        # chooseIngredientList.grid(column = 0, row = 1)
+        # instructionLabel = tk.Label(createFood, text = "instruction")
+        # instructionLabel.grid(column = 0, row = 3)
+        # inputInstruction = tk.Entry(createFood)
+        # inputInstruction.grid(column = 1, row = 3)
+        # tk.Button(createFood, text = "add", command = lambda:addIngredient(col, chosenIngredient)).grid(column = 1, row = 1)
+        # tk.Button(createFood, text = "create", command = lambda: createFood(inputFoodName,chosenIngredient, inputInstruction)).grid(column = 1, row = 4)
 
 
 
 
 
     def createIngredientDialog():
-        createIngredient = tk.Toplevel(window)
-        createIngredient.title("create ingredients")
-        createIngredient.geometry("300x200")
+        # createIngredient = tk.Toplevel(window)
+        # createIngredient.title("create ingredients")
+        # createIngredient.geometry("300x200")
+        ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
+        callsp("insert_Ingredient", (ingredientName,))
 
         
     window = tk.Tk()
@@ -758,23 +731,23 @@ def generateMealPlan(username,mealplanID):
     plan.column("createdDate", width = 130)
     plan.heading("type", text = "type")
     plan.heading("ingredient", text = "Ingredient")
-    plan.heading("createdDate", text = "Created Date")
+    plan.heading("createdDate", text = "Plan Date")
 
     allfood=callsp("get_personMealFood",(username,mealplanID))
     if type(allfood)==list:
         for food in allfood:
-            print(food)
+            #print(food)
             foodingredient=callsp("get_foodIngredient",(food["FoodName"],))
             if type(foodingredient)==list:
                 ingredients=[i["IngredientName"] for i in foodingredient]
             else:
                 ingredients=["N/A"]
-            loadFoodToPlan(food["FoodName"],food["type"],ingredients,food["date"])
+            loadFoodToPlan(food["FoodName"],food["type"],ingredients,food["date"].strftime("%Y-%m-%d"))
     plan.pack()
     ttk.Button(window, text="Add Food To Meal Plan", command=addFoodDialog).pack()
     ttk.Button(window, text = "Edit current Food on the Meal Plan", command = editFoodDialog).pack()
-    #ttk.Button(window, text = "create food",command = createFoodDialog).pack()
-    #ttk.Button(window, text = "create ingredient",command = createIngredientDialog).pack()
+    ttk.Button(window, text = "create food",command = createFoodDialog).pack()
+    ttk.Button(window, text = "create ingredient",command = createIngredientDialog).pack()
 
     window.mainloop()
 

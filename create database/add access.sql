@@ -18,9 +18,3 @@ CREATE USER [jiangy10] FROM LOGIN [jiangy10];
 exec sp_addrolemember 'db_owner', 'jiangy10'; 
 
 GO
-
-CREATE USER [SodaBaseUsercaiy] FROM LOGIN [SodaBaseUsercaiy]; 
-
-exec sp_addrolemember 'db_owner', 'SodaBaseUsercaiy'; 
-
-GO

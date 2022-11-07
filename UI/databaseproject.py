@@ -15,18 +15,18 @@ user="SodaBaseUsercaiy"
 password="Password123"
 database="10_MealPlan"
 
+'''
+server=input("server:")
+user=input("user:")
+password=input("password:")
+database=input("database:")
+'''
+
 #user information
 username=""
 name=""
 userpassword=""
 
-spname=["insert_Person","delete_person","insert_Food","insert_Ingredient","update_name","insert_IsIngredientOf","insert_mealplan","add_mealpan_to_person","delete_mealplan"]
-spargs={}
-
-spviewname=["get_Food","get_Ingredient"]
-spviewargs={}
-
-spdisplayname=[]#name of sp that access data in database
 page=0
 
 #current plan on page
@@ -38,6 +38,8 @@ page=0
 #5: show all personal meal plan, able to add or edit meal plan
 #6: 
 #-1: display most table version
+#
+#meal plan: individual window
 
 #show content of one table on UI, can only be used for test purpose
 def _display(databasetablename,attribute,column):
@@ -49,7 +51,6 @@ def _display(databasetablename,attribute,column):
         cursor.execute('SELECT * FROM '+databasetablename)
         for row in cursor:
             r+=1
-            #print(row[attribute],row)
             canvas.create_text(120*column+40,150+20*r,text=row[attribute])
             canvas.update()
 
@@ -68,6 +69,7 @@ yheight=50
 rownum=10#how many rows in the display table
 startrow=0
 totalrow=0
+#personal meal plan ID
 personalmealplanID=[]
 
 #draw table
@@ -84,7 +86,6 @@ def drawtable(table):
     i=0
     j=0
     
-    #print("draw table",len(table),table)
     for a in attri:
         j=1
         canvas.create_text(x+xwidth*i,y,text=a,font=("Purisa",20))
@@ -118,7 +119,7 @@ def draw():
     global totalrow,personalmealplanID
     #use display to display table
     #last argument is column and used for text coordinate
-    
+    canvas.delete("all")
     if page==-1:
         _display("MealPlan","ID",0)
         _display("MealPlan",'date',1)
@@ -288,8 +289,10 @@ def click(coordinate):
             password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
             if callsp("insert_Person",(username,user_name,password1))==1:
                 messagebox.showinfo("successfully sign up","Please log in use account")
+        '''
         elif 1000<x<1200 and 600<y<700:
             page=-1
+        '''
     elif page==1:
         startrow=0
         if 150<x<250 and 275<y<325:
@@ -486,7 +489,6 @@ def click(coordinate):
         if 1000<x<1100 and 500<y<550:
             page=0
         
-    canvas.delete("all")
     draw()
     
 #stored procedure, show a dialog if error
@@ -495,17 +497,11 @@ def callsp(spname,args):
     try:
         with pymssql.connect(server,user,password,database) as conn:
             with conn.cursor(as_dict=True) as cursor:
-                #cursor = conn.cursor(as_dict=True)
                 cursor.callproc(spname, args)
                 r=[]
                 for row in cursor:
                     r.append(row)
-                    #print(row)
                 conn.commit()
-                #print("finish stored procedure")
-                # cnt=cursor.fetchall()
-                #print(r)
-                
                 if r:
                     #return query
                     return r
@@ -546,6 +542,7 @@ def addfoodingredient(foodName):
             except:
                 pass
         window1.destroy()
+        draw()
     def addI():
         ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
         if callsp("insert_Ingredient", (ingredientName,)):
@@ -727,7 +724,63 @@ def generateMealPlan(username,mealplanID):
         # tk.Button(createFood, text = "add", command = lambda:addIngredient(col, chosenIngredient)).grid(column = 1, row = 1)
         # tk.Button(createFood, text = "create", command = lambda: createFood(inputFoodName,chosenIngredient, inputInstruction)).grid(column = 1, row = 4)
 
-
+    def addfoodingredient(foodName):
+        def move():
+            a=lb.get("active")
+            lb.delete("active")
+            lb2.insert("end",a)
+        def remove():
+            a=lb2.get("active")
+            lb2.delete("active")
+            lb.insert("end",a)
+        def confirm():
+            callsp("delete_food_ingredient",(foodName,))
+            for i in range(lb2.size()):
+                try:
+                    callsp("insert_IsIngredientOf",(foodName,lb2.get(i),1))
+                except:
+                    pass
+            window1.destroy()
+            updatePlan()
+        def addI():
+            ingredientName=simpledialog.askstring(title="create ingredient", prompt="input name of ingredient", initialvalue="")
+            if callsp("insert_Ingredient", (ingredientName,)):
+                lb2.insert("end",ingredientName)
+            
+        window1 = tk.Tk()
+        window1.title("add ingredient of "+foodName)
+        window1.geometry("400x600")
+        lb=tk.Listbox(window1)
+        lb2=tk.Listbox(window1)
+        ingredientList = callsp("get_Ingredient",())
+        ingredientList=[i["name"] for i in ingredientList]
+        foodingredient = callsp("get_foodIngredient", (foodName,))
+        if type(foodingredient)==list:
+            foodingredient=[i["IngredientName"] for i in foodingredient]
+        else:
+            foodingredient=[]
+        for i in ingredientList:
+            if i in foodingredient:
+                lb2.insert("end",i)
+            else:
+                lb.insert("end",i)
+            
+        tk.Label(window1,text="unselected ingredient").grid(row=0,column=0)
+        tk.Label(window1,text="selected ingredient").grid(row=0,column=1)
+        lb.grid(row=1,column=0)
+        lb2.grid(row=1,column=1)
+        
+        button=tk.Button(window1,text="add",command=move)
+        button.grid(row=2,column=0)
+        button=tk.Button(window1,text="remove",command=remove)
+        button.grid(row=2,column=1)
+        
+        button=tk.Button(window1,text="confirm",command=confirm)
+        button.grid(row=3)
+        button=tk.Button(window1,text="add ingredient",command=addI)
+        button.grid(row=4)
+        
+        window1.mainloop()
 
 
 
@@ -744,6 +797,7 @@ def generateMealPlan(username,mealplanID):
         if foodName in foodNameList:
             addfoodingredient(foodName)
             generateMealPlanMain()
+            updatePlan()
         else:
             messagebox.showerror('error',"food not exist")
     
@@ -825,7 +879,6 @@ def editFoodDialog():
 
     tk.Button(dialog, text = "edit", command = lambda: editFoodOnClick(inputFoodName.get(), inputNewFoodName.get(), inputNewInstruction.get())).grid(column = 0, row = 3)
     tk.Button(dialog, text = "delete",command = lambda: deleteFoddOnClick(inputFoodName.get())).grid(column = 1, row = 3)
-
 
 
 canvas.bind("<Button-1>",click)

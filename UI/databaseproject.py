@@ -13,7 +13,7 @@ root.title("meal plan")
 server="titan.csse.rose-hulman.edu"
 user="SodaBaseUsercaiy"
 password="Password123"
-database="10_MealPlan"
+database="MealPlan10"#"10_MealPlan"
 
 '''
 server=input("server:")
@@ -289,10 +289,10 @@ def click(coordinate):
             password1=hashlib.sha256(password1.encode('utf-8')).hexdigest()
             if callsp("insert_Person",(username,user_name,password1))==1:
                 messagebox.showinfo("successfully sign up","Please log in use account")
-        '''
+        
         elif 1000<x<1200 and 600<y<700:
             page=-1
-        '''
+        
     elif page==1:
         startrow=0
         if 150<x<250 and 275<y<325:
@@ -368,18 +368,21 @@ def click(coordinate):
         elif 1000<x<1100 and 650<y<700:
             mealplanIDs=callsp("get_allMealPlan",())
             print(mealplanIDs)
-            mealplanIDs=[i['ID'] for i in mealplanIDs]
-            print("meal plan IDs",mealplanIDs)
-            newID=max(mealplanIDs)+1
-            y=simpledialog.askstring(title="new mealplan", prompt="input year", initialvalue=time.strftime("%Y", time.localtime()))
-            m=simpledialog.askstring(title="new mealplan", prompt="input month", initialvalue=time.strftime("%m", time.localtime()))
-            d=simpledialog.askstring(title="new mealplan", prompt="input day", initialvalue=time.strftime("%d", time.localtime()))
-            if y and m and d:
-                date=y+"-"+m+"-"+d
+            if type(mealplanIDs)==list:
+                mealplanIDs=[i['ID'] for i in mealplanIDs]
+                newID=max(mealplanIDs)+1
+            else:
+                mealplanIDs=[]
+                newID=1
+            year=simpledialog.askstring(title="new mealplan", prompt="input year", initialvalue=time.strftime("%Y", time.localtime()))
+            month=simpledialog.askstring(title="new mealplan", prompt="input month", initialvalue=time.strftime("%m", time.localtime()))
+            day=simpledialog.askstring(title="new mealplan", prompt="input day", initialvalue=time.strftime("%d", time.localtime()))
+            if year and month and day:
+                date=year+"-"+month+"-"+day
                 if callsp("insert_mealplan", (newID,date)):
                     callsp("add_mealpan_to_person", (username,newID,1))
                 
-        if 1050<x<1150:
+        elif 1050<x<1150:
             #meal plan detail 
             for i in range(rownum):
                 if i+startrow>totalrow:
@@ -391,7 +394,7 @@ def click(coordinate):
                         generateMealPlan(username,personalmealplanID[i+startrow])
                     except:
                         pass
-        if 1200<x<1300:
+        elif 1200<x<1300:
             #delete
             for i in range(rownum):
                 if i+startrow>=totalrow:
@@ -554,7 +557,10 @@ def addfoodingredient(foodName):
     lb=tk.Listbox(window1)
     lb2=tk.Listbox(window1)
     ingredientList = callsp("get_Ingredient",())
-    ingredientList=[i["name"] for i in ingredientList]
+    if type(ingredientList)==list:
+        ingredientList=[i["name"] for i in ingredientList]
+    else:
+        ingredientList=[]
     foodingredient = callsp("get_foodIngredient", (foodName,))
     if type(foodingredient)==list:
         foodingredient=[i["IngredientName"] for i in foodingredient]
@@ -856,12 +862,16 @@ def editFoodDialog():
 
     # option menu
     editableFood = callsp("getFoodNotOnPlan", ())
-    chooseList = []
+    chooseList = [" "]
+    if type(editableFood)!=list:
+        editableFood=[]
+    else:
+        chooseList=[]
     for item in editableFood:
         chooseList.append(item["name"])
     inputFoodName = tk.StringVar(dialog, "food")
-    shooseFoodMenu = tk.OptionMenu(dialog, inputFoodName, *chooseList)
-    shooseFoodMenu.grid(column = 1, row = 0)
+    chooseFoodMenu = tk.OptionMenu(dialog, inputFoodName, *chooseList)
+    chooseFoodMenu.grid(column = 1, row = 0)
 
     # instruction label - newFood
     newFoodLabel = tk.Label(dialog, text = "new foodName")

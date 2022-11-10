@@ -9,12 +9,16 @@ root=Tk()
 canvas=Canvas(root,bg="#EEEEEE",width=1500,height=750)#canvas size
 root.title("meal plan")
 
+with open("account.txt","r") as txt:
+    info=txt.read()
+server,user,password,database=info.splitlines()
+'''
 #server, user, password, database
 server="titan.csse.rose-hulman.edu"
 user="SodaBaseUsercaiy"
 password="Password123"
 database="10_MealPlan"#"MealPlan10"
-
+'''
 #user information
 username=""
 name=""
@@ -149,7 +153,7 @@ def draw():
         canvas.create_text(1225,675,text="menu")
         canvas.create_rectangle(1000,650,1100,700,fill="#AAAAAA")
         canvas.create_text(1050,675,text="add food")
-        canvas.create_rectangle(800,650,900,700,fill="#AAAAAA")
+        canvas.create_rectangle(775,650,925,700,fill="#AAAAAA")
         canvas.create_text(850,675,text="edit food name instruction")
         canvas.create_rectangle(600,650,700,700,fill="#AAAAAA")
         canvas.create_text(650,675,text="edit food ingredient")
@@ -266,13 +270,16 @@ def click(coordinate):
             if callsp("insert_Food", (foodName,foodInstruction)):
                 #add ingredient to food
                 addfoodingredient(foodName)
-        elif 800<x<900 and 650<y<700:
+        elif 775<x<925 and 650<y<700:
             editFoodDialog()
         elif 600<x<700 and 650<y<700:
-            foodName=simpledialog.askstring(title="edit ingredient", prompt="input name of food", initialvalue="")
-            foodNameList=[i["name"] for i in callsp("get_Food",())]
-            if foodName in foodNameList:
-                addfoodingredient(foodName)
+            ingredientName=simpledialog.askstring(title="edit ingredient", prompt="input name of food", initialvalue="")
+            ingredientlist=callsp("get_Food",())
+            if type(ingredientlist)!=list:
+                ingredientlist=[]
+            ingredientNameList=[i["name"] for i in ingredientlist]
+            if ingredientName in ingredientNameList:
+                addfoodingredient(ingredientName)
                 draw()
             else:
                 messagebox.showerror('error',"food not exist")
